@@ -40,6 +40,7 @@ class Tools():
     def get_missing(self):
         dates = set()
         for path in self.files:
+            print(path)
             match = re.search(r'\d{4}-\d{2}-\d{2}', path)
             date = str(datetime.datetime.strptime(match.group(), '%Y-%m-%d').date())
             dates.add(date)
