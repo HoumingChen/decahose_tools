@@ -11,8 +11,10 @@ class Tools():
         pass
 
     def ls(self):
-        files_var = subprocess.check_output('hdfs dfs -ls /var/twitter/decahose/json/', shell=True).strip().split('\n')
-        files_data = subprocess.check_output('hdfs dfs -ls /data/twitter/decahose/', shell=True).strip().split('\n')
+        cmd_var = 'hdfs dfs -ls /var/twitter/decahose/json/'
+        files_var = subprocess.check_output(cmd_var, shell=True).strip().split('\n')
+        cmd_data = 'hdfs dfs -ls /data/twitter/decahose/'
+        files_data = subprocess.check_output(cmd_data, shell=True).strip().split('\n')
         files = files_var + files_data
         for path in files:
             print(path)
