@@ -12,8 +12,8 @@ class Tools():
     def __init__(self, year = 2018):
         self.year = year
         self.all_dates = self.get_all_dates()
-        self.files = self.get_files()
-        self.missing_days = self.get_missing()
+        self.files, self.contained_dates = self.get_files()
+        self.missing_days = self.all_dates.difference(self.contained_dates)
 
     def get_all_dates(self):
         start_date = datetime.date(self.year, 1, 1)
@@ -31,20 +31,15 @@ class Tools():
         files_var = subprocess.check_output(cmd_var, shell=True).decode().strip().split('\n')
         files = files_var
         file_dirs = []
+        contained_dates = set()
         for file in files:
             splitted = file.split()
             if len(splitted) == 8:
-                file_dirs.append(splitted[7])
-        return file_dirs
-
-    def get_missing(self):
-        dates = set()
-        for path in self.files:
-            print(path)
-            match = re.search(r'\d{4}-\d{2}-\d{2}', path)
-            date = str(datetime.datetime.strptime(match.group(), '%Y-%m-%d').date())
-            dates.add(date)
-        return dates.difference(self.all_dates)
+                matched_date = re.search(r'\d{4}-\d{2}-\d{2}', splitted[7])
+                if matched_date:
+                    file_dirs.append(splitted[7])
+                    contained_dates.add(str(datetime.datetime.strptime(matched_date.group(), '%Y-%m-%d').date()))
+        return file_dirs, contained_dates
 
     def missing(self):
         print(self.missing_days)
