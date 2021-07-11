@@ -1,5 +1,7 @@
 import os
+import datetime
 import subprocess
+import re
 from pyspark.sql.types import BooleanType
 from pyspark.sql.functions import udf
 
@@ -7,21 +9,47 @@ from pyspark.sql.functions import udf
 class Tools():
     '''This class provides tools for getting decahose data'''
 
-    def __init__(self):
-        pass
+    def __init__(self, year = 2018):
+        self.year = year
+        self.all_dates = self.get_all_dates()
+        self.files = self.get_files()
+        self.missing_days = self.get_missing()
 
-    def ls(self):
+    def get_all_dates(self):
+        start_date = datetime.date(self.year, 1, 1)
+        end_date = datetime.date(self.year, 12, 31)
+        delta = datetime.timedelta(days=1)
+        dates = set()
+        while start_date <= end_date:
+            dates.add(str(start_date))
+            start_date += delta
+        return dates
+
+
+    def get_files(self):
         cmd_var = 'hdfs dfs -ls /var/twitter/decahose/json/'
         files_var = subprocess.check_output(cmd_var, shell=True).decode().strip().split('\n')
-        #cmd_data = 'hdfs dfs -ls /data/twitter/decahose/json/'
-        #files_data = subprocess.check_output(cmd_data, shell=True).decode().strip().split('\n')
-        files = files_var# + files_data
+        files = files_var
         file_dirs = []
         for file in files:
             splitted = file.split()
             if len(splitted) == 8:
                 file_dirs.append(splitted[7])
-        for path in file_dirs:
+        return file_dirs
+
+    def get_missing(self):
+        dates = set()
+        for path in self.files:
+            match = re.search(r'\d{4}-\d{2}-\d{2}', path)
+            date = str(datetime.strptime(match.group(), '%Y-%m-%d').date())
+            dates.add(dates)
+        return dates.difference(self.all_dates)
+
+    def missing(self):
+        print(self.missing_days)
+
+    def ls(self):
+        for path in self.files:
             print(path)
 
     def run(self):
