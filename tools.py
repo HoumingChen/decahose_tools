@@ -48,7 +48,7 @@ class Tools():
         for path in self.files:
             print(sorted(list(self.missing_days)))
 
-    def get_data_frame(self, date):
+    def get_df(self, sql_context, date):
         if date not in self.contained_dates:
             print(f"Does not contain data on {date}")
             return None
