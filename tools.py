@@ -54,6 +54,6 @@ class Tools():
             return None
         else:
             path = f'/var/twitter/decahose/json/decahose.{date}*'
-            return sqlContext.read.json(path)
+            return sql_context.read.json(path)
 
 
