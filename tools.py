@@ -10,9 +10,10 @@ class Tools():
     def __init__(self):
         pass
 
-    def list(self):
-        cmd = 'hdfs dfs -ls /user/path'
-        files = subprocess.check_output(cmd, shell=True).strip().split('\n')
+    def ls(self):
+        files_var = subprocess.check_output('hdfs dfs -ls /var/twitter/decahose/json/', shell=True).strip().split('\n')
+        files_data = subprocess.check_output('hdfs dfs -ls /data/twitter/decahose/', shell=True).strip().split('\n')
+        files = files_var + files_data
         for path in files:
             print(path)
 
