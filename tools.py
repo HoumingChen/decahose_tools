@@ -13,10 +13,15 @@ class Tools():
     def ls(self):
         cmd_var = 'hdfs dfs -ls /var/twitter/decahose/json/'
         files_var = subprocess.check_output(cmd_var, shell=True).decode().strip().split('\n')
-        cmd_data = 'hdfs dfs -ls /data/twitter/decahose/'
+        cmd_data = 'hdfs dfs -ls /data/twitter/decahose/json/'
         files_data = subprocess.check_output(cmd_data, shell=True).decode().strip().split('\n')
         files = files_var + files_data
-        for path in files:
+        file_dirs = []
+        for file in files:
+            splitted = file.split()
+            if len(splitted) == 8:
+                file_dirs.append(splitted[7])
+        for path in file_dirs:
             print(path)
 
     def run(self):
