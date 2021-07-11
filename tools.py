@@ -41,8 +41,8 @@ class Tools():
         dates = set()
         for path in self.files:
             match = re.search(r'\d{4}-\d{2}-\d{2}', path)
-            date = str(datetime.strptime(match.group(), '%Y-%m-%d').date())
-            dates.add(dates)
+            date = str(datetime.datetime.strptime(match.group(), '%Y-%m-%d').date())
+            dates.add(date)
         return dates.difference(self.all_dates)
 
     def missing(self):
