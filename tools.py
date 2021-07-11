@@ -16,6 +16,7 @@ class Tools():
         self.missing_days = self.all_dates.difference(self.contained_dates)
 
     def get_all_dates(self):
+        '''Get all dates in this year'''
         start_date = datetime.date(self.year, 1, 1)
         end_date = datetime.date(self.year, 12, 31)
         delta = datetime.timedelta(days=1)
@@ -24,7 +25,6 @@ class Tools():
             dates.add(str(start_date))
             start_date += delta
         return dates
-
 
     def get_files(self):
         cmd_var = 'hdfs dfs -ls /var/twitter/decahose/json/'
@@ -46,26 +46,14 @@ class Tools():
 
     def ls(self):
         for path in self.files:
-            print(path)
+            print(sorted(list(self.missing_days)))
 
-    def run(self):
-        wdir_19 = '/var/twitter/decahose/raw'
-        wdir_18 = '/var/twitter/decahose/json/'
-        date = ["%.2d" % i for i in range(1, 32)]  # change this to other dates
-        twitter_path = ['decahose.2018-03-{}*'.format(i) for i in date]  # chenge year and month to get more data
-        variables_to_output = ['id_str', 'text', 'extended_tweet', 'user', 'created_at', 'entities']
-        ret_csv_name = ['Mar/mar_{}'.format(i) for i in date]
+    def get_data_frame(self, date):
+        if date not in self.contained_dates:
+            print(f"Does not contain data on {date}")
+            return None
+        else:
+            path = f'/var/twitter/decahose/json/decahose.{date}*'
+            return sqlContext.read.json(path)
 
-        def n_tags(s):
-            return len(s) > 0
 
-        n_tags_udf = udf(n_tags, BooleanType())
-
-        for i in range(len(date))[1:]:
-            df = sqlContext.read.json(os.path.join(wdir_18, twitter_path[i]))
-            print(date[i])
-            df = df.filter(df.lang == 'en').filter(df.retweeted_status.isNull())
-            df = df.withColumn('hashtags', df['entities']['hashtags'])
-            df = df.filter(n_tags_udf('hashtags'))
-            df.select(variables_to_output).write.mode('overwrite').parquet(ret_csv_name[i])
-            df.select('id_str').write.mode('overwrite').parquet('id_only.parquet')
