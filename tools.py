@@ -18,7 +18,7 @@ class Tools():
         self.missing_days = self.all_dates.difference(self.contained_dates)
         self.tag_topic_dict = self.__load_predefined_tags()
         self.all_tags = frozenset(self.tag_topic_dict.keys())
-        self.sorted_dates = sorted(list(self.contained_dates))
+        self.date_list = sorted(list(self.all_dates.difference(self.missing_days)))
 
     def __get_all_dates(self):
         '''Get all dates in this year'''
@@ -110,6 +110,6 @@ class Tools():
             except Exception as e:
                 print(f"Exception occured when reading {date}")
                 print(e)
-                
+
     def run_index(self, index):
         self.save_processed_df(self.sorted_dates[index], silent=False)
