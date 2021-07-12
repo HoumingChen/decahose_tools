@@ -106,13 +106,13 @@ class Tools():
         df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
         print(f"{date}: finished!")
 
-    def run_all(self):
-        for date in self.date_list:
+    def run_all(self, start_index = 0):
+        for i in range(start_index, len(self.date_list)):
             try:
-                self.save_processed_df(date, silent=False)
+                self.save_processed_df(self.date_list[i], silent=False)
                 time.sleep(5)
             except Exception as e:
-                print(f"Exception occured when reading {date}")
+                print(f"Exception occured when reading {self.date_list[i]}")
                 print(e)
 
     def run_index(self, index):
