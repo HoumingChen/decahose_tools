@@ -9,14 +9,14 @@ from pyspark.sql.functions import udf
 class Tools():
     '''This class provides tools for getting decahose data'''
 
-    def __init__(self, year=2018):
+    def __init__(self, sqlContext, year=2018):
+        self.sqlContext = sqlContext
         self.year = year
         self.all_dates = self.__get_all_dates()
         self.files, self.contained_dates = self.__get_files()
         self.missing_days = self.all_dates.difference(self.contained_dates)
         self.tag_topic_dict = self.__load_predefined_tags()
         self.all_tags = frozenset(self.tag_topic_dict.keys())
-        self.filter = self.get_filter()
 
     def __get_all_dates(self):
         '''Get all dates in this year'''
@@ -72,20 +72,21 @@ class Tools():
 
 
     def missing(self):
-        print(self.missing_days)
+        print(sorted(list(self.missing_days)))
 
     def ls(self):
         for path in self.files:
-            print(sorted(list(self.missing_days)))
+            print(path)
 
-    def get_raw_df(self, sql_context, date):
+    def get_raw_df(self, date):
         if date not in self.contained_dates:
             print(f"Does not contain data on {date}")
             return None
         else:
             path = f'/var/twitter/decahose/json/decahose.{date}*'
-            return sql_context.read.json(path)
+            return self.sqlContext.read.json(path)
 
-    def get_df(self, sql_context, date):
-        df = self.get_raw_df(sql_context, date)
-        return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(self.filter('entities'))
+    def get_df(self, date):
+        df = self.get_raw_df(date)
+        filter = self.get_filter()
+        return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(filter('entities'))
