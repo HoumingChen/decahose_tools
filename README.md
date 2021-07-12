@@ -1,7 +1,7 @@
 # decahose_tools
 Tools for getting the decahose data.
 
-After cloning and cd to the repo run this
+After cloning and cd to the repo, run this
 ~~~
 ./open_spark.sh
 ~~~
