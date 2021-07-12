@@ -16,7 +16,6 @@ class Tools():
         self.missing_days = self.all_dates.difference(self.contained_dates)
         self.tag_topic_dict = self.__load_predefined_tags()
         self.all_tags = set(self.tag_topic_dict.keys())
-        self.filter = self.__get_filter()
 
     def __get_all_dates(self):
         '''Get all dates in this year'''
@@ -67,19 +66,12 @@ class Tools():
         tag_topic_dict['Facebook'] = 'TECHNOLOGY'
         return tag_topic_dict
 
-    def __get_filter(self):
-        def entity_filter_function(entities):
-            for element in entities.hashtags:
-                if element.text in self.all_tags:
-                    return True
-            return False
-
-        entity_filter = udf(entity_filter_function, BooleanType())
-
-        def filter(lang, retweeted_status, entities):
-            return (lang == 'en') & (retweeted_status.isNull()) & (entity_filter(entities))
-
-        return filter
+    @udf(returnType=BooleanType())
+    def entity_filter(self, entities):
+        for element in entities.hashtags:
+            if element.text in self.all_tags:
+                return True
+        return False
 
 
     def missing(self):
@@ -99,4 +91,4 @@ class Tools():
 
     def get_df(self, sql_context, date):
         df = self.get_raw_df(sql_context, date)
-        return df.filter(self.filter('entities'))
+        return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(self.entity_filter('entities'))
