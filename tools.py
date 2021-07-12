@@ -94,15 +94,19 @@ class Tools():
         my_filter = self.get_filter()
         return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(my_filter('entities'))
 
-    def save_processed_df(self, date):
+    def save_processed_df(self, date, silent = True):
+        if not silent:
+            print(f"{date}: geting data")
         df = self.get_df(date)
+        if not silent:
+            print(f"{date}: saving data")
         df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
 
     def run_all(self):
         dates = sorted(list(self.contained_dates))
         for date in dates:
             try:
-                self.save_processed_df(date)
+                self.save_processed_df(date, silent=False)
             except Exception as e:
                 print(f"Exception occured when reading {date}")
                 print(e)
