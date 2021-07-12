@@ -15,7 +15,7 @@ class Tools():
         self.files, self.contained_dates = self.__get_files()
         self.missing_days = self.all_dates.difference(self.contained_dates)
         self.tag_topic_dict = self.__load_predefined_tags()
-        self.all_tags = set(self.tag_topic_dict.keys())
+        self.all_tags = frozenset(self.tag_topic_dict.keys())
         self.filter = self.get_filter()
 
     def __get_all_dates(self):
@@ -68,15 +68,7 @@ class Tools():
         return tag_topic_dict
 
     def get_filter(self):
-
-        @udf(returnType=BooleanType())
-        def entity_filter(entities):
-            for element in entities.hashtags:
-                if element.text in self.all_tags:
-                    return True
-            return False
-
-        return entity_filter
+        return udf(lambda entities: any(element.text in self.all_tags for element in entities.hashtags), BooleanType())
 
 
     def missing(self):
