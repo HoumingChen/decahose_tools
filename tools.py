@@ -79,6 +79,8 @@ class Tools():
         def filter(lang, retweeted_status, entities):
             return (lang == 'en') & (retweeted_status.isNull()) & (entity_filter(entities))
 
+        return filter
+
 
     def missing(self):
         print(self.missing_days)
