@@ -9,13 +9,16 @@ from pyspark.sql.functions import udf
 class Tools():
     '''This class provides tools for getting decahose data'''
 
-    def __init__(self, year = 2018):
+    def __init__(self, year=2018):
         self.year = year
-        self.all_dates = self.get_all_dates()
-        self.files, self.contained_dates = self.get_files()
+        self.all_dates = self.__get_all_dates()
+        self.files, self.contained_dates = self.__get_files()
         self.missing_days = self.all_dates.difference(self.contained_dates)
+        self.tag_topic_dict = self.__load_predefined_tags()
+        self.all_tags = set(self.tag_topic_dict.keys())
+        self.filter = self.__get_filter()
 
-    def get_all_dates(self):
+    def __get_all_dates(self):
         '''Get all dates in this year'''
         start_date = datetime.date(self.year, 1, 1)
         end_date = datetime.date(self.year, 12, 31)
@@ -26,7 +29,7 @@ class Tools():
             start_date += delta
         return dates
 
-    def get_files(self):
+    def __get_files(self):
         cmd_var = 'hdfs dfs -ls /var/twitter/decahose/json/'
         files_var = subprocess.check_output(cmd_var, shell=True).decode().strip().split('\n')
         files = files_var
@@ -41,6 +44,42 @@ class Tools():
                     contained_dates.add(str(datetime.datetime.strptime(matched_date.group(), '%Y-%m-%d').date()))
         return file_dirs, contained_dates
 
+    def __load_predefined_tags(self):
+        f = open('pre_define_tag_topic.txt', 'r')
+        input_file = f.readlines()
+        tag_name = [input_file[i].strip() for i in range(2, len(input_file), 2)]
+        tag_topic = [input_file[i].strip() for i in range(3, len(input_file), 2)]
+        tag_topic_dict = {tag_name[i]: tag_topic[i] for i in range(len(tag_name))}
+
+        for i in tag_topic_dict.keys():
+            if tag_topic_dict[i] == 'NONE':
+                tag_topic_dict[i] = 'OTHER'
+            elif 'MUSIC' in tag_topic_dict[i]:
+                tag_topic_dict[i] = 'MUSIC'
+            elif 'MOVIES' in tag_topic_dict[i]:
+                tag_topic_dict[i] = 'MOVIES'
+            elif 'GAMES' in tag_topic_dict[i]:
+                tag_topic_dict[i] = 'GAMES'
+            elif 'TECHNOLOGY' in tag_topic_dict[i]:
+                tag_topic_dict[i] = 'TECHNOLOGY'
+
+        tag_topic_dict = {key: val for key, val in tag_topic_dict.items() if val != 'CELEBRITY'}
+        tag_topic_dict['Facebook'] = 'TECHNOLOGY'
+        return tag_topic_dict
+
+    def __get_filter(self):
+        def entity_filter_function(entities):
+            for element in entities.hashtags:
+                if element.text in self.all_tags:
+                    return True
+            return False
+
+        entity_filter = udf(entity_filter_function, BooleanType())
+
+        def filter(lang, retweeted_status, entities):
+            return (lang == 'en') & (retweeted_status.isNull()) & (entity_filter(entities))
+
+
     def missing(self):
         print(self.missing_days)
 
@@ -48,7 +87,7 @@ class Tools():
         for path in self.files:
             print(sorted(list(self.missing_days)))
 
-    def get_df(self, sql_context, date):
+    def get_raw_df(self, sql_context, date):
         if date not in self.contained_dates:
             print(f"Does not contain data on {date}")
             return None
@@ -56,4 +95,6 @@ class Tools():
             path = f'/var/twitter/decahose/json/decahose.{date}*'
             return sql_context.read.json(path)
 
-
+    def get_df(self, sql_context, date):
+        df = self.get_raw_df(sql_context, date)
+        return df.filter(self.filter('entities'))
