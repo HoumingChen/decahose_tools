@@ -106,8 +106,10 @@ class Tools():
         df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
         print(f"{date}: finished!")
 
-    def run_all(self, start_index = 0):
-        for i in range(start_index, len(self.date_list)):
+    def run_all(self, start_index = 0, end_index = None):
+        if end_index is None:
+            end_index = len(self.date_list)
+        for i in range(start_index, end_index):
             try:
                 self.save_processed_df(self.date_list[i], silent=False)
                 time.sleep(5)
