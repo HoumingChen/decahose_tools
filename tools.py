@@ -68,7 +68,8 @@ class Tools():
         return tag_topic_dict
 
     def get_filter(self):
-        return udf(lambda entities: any(element.text in self.all_tags for element in entities.hashtags), BooleanType())
+        tags = self.all_tags
+        return udf(lambda entities: any(element.text in tags for element in entities.hashtags), BooleanType())
 
 
     def missing(self):
@@ -88,5 +89,5 @@ class Tools():
 
     def get_df(self, date):
         df = self.get_raw_df(date)
-        filter = self.get_filter()
-        return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(filter('entities'))
+        my_filter = self.get_filter()
+        return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(my_filter('entities'))
