@@ -95,5 +95,9 @@ class Tools():
 
     def save_processed_df(self, date):
         df = self.get_df(date)
-        df.write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date))
+        df.write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '.parquet'))
+
+    def run_all(self, data):
+        for date in self.contained_dates:
+            self.save_processed_df(date)
 
