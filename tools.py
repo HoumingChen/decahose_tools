@@ -18,6 +18,7 @@ class Tools():
         self.missing_days = self.all_dates.difference(self.contained_dates)
         self.tag_topic_dict = self.__load_predefined_tags()
         self.all_tags = frozenset(self.tag_topic_dict.keys())
+        self.sorted_dates = sorted(list(self.contained_dates))
 
     def __get_all_dates(self):
         '''Get all dates in this year'''
@@ -103,11 +104,12 @@ class Tools():
         df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
 
     def run_all(self):
-        dates = sorted(list(self.contained_dates))
-        for date in dates:
+        for date in self.sorted_dates:
             try:
                 self.save_processed_df(date, silent=False)
             except Exception as e:
                 print(f"Exception occured when reading {date}")
                 print(e)
-
+                
+    def run_index(self, index):
+        self.save_processed_df(self.sorted_dates[index], silent=False)
