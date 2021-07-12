@@ -104,7 +104,7 @@ class Tools():
         df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
 
     def run_all(self):
-        for date in self.sorted_dates:
+        for date in self.date_list:
             try:
                 self.save_processed_df(date, silent=False)
             except Exception as e:
@@ -112,4 +112,4 @@ class Tools():
                 print(e)
 
     def run_index(self, index):
-        self.save_processed_df(self.sorted_dates[index], silent=False)
+        self.save_processed_df(self.date_list[index], silent=False)
