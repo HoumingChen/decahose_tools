@@ -68,6 +68,7 @@ class Tools():
         return tag_topic_dict
 
     def get_filter(self):
+        '''Copying the 'self.all_tags' to 'tags' is necessary. Don't write in one line.'''
         tags = self.all_tags
         return udf(lambda entities: any(element.text in tags for element in entities.hashtags), BooleanType())
 
@@ -91,3 +92,8 @@ class Tools():
         df = self.get_raw_df(date)
         my_filter = self.get_filter()
         return df.filter((df.lang == 'en') & (df.retweeted_status.isNull())).filter(my_filter('entities'))
+
+    def save_processed_df(self, date):
+        df = self.get_df(date)
+        df.write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date))
+
