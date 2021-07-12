@@ -5,6 +5,7 @@ import re
 from pyspark.sql.types import BooleanType
 from pyspark.sql.functions import udf
 
+#spark.conf.set("spark.sql.debug.maxToStringFields", 1000)
 
 class Tools():
     '''This class provides tools for getting decahose data'''
@@ -95,7 +96,7 @@ class Tools():
 
     def save_processed_df(self, date):
         df = self.get_df(date)
-        df.write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '.parquet'))
+        df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
 
     def run_all(self, data):
         for date in self.contained_dates:
