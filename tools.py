@@ -2,6 +2,7 @@ import os
 import datetime
 import subprocess
 import re
+import time
 from pyspark.sql.types import BooleanType
 from pyspark.sql.functions import udf
 
@@ -99,14 +100,17 @@ class Tools():
         if not silent:
             print(f"{date}: geting data")
         df = self.get_df(date)
+        time.sleep(1)
         if not silent:
             print(f"{date}: saving data")
         df.select('id_str').write.mode('overwrite').parquet(os.path.join("decahose_500tag_data", date + '_id.parquet'))
+        print(f"{date}: finished!")
 
     def run_all(self):
         for date in self.date_list:
             try:
                 self.save_processed_df(date, silent=False)
+                time.sleep(5)
             except Exception as e:
                 print(f"Exception occured when reading {date}")
                 print(e)
