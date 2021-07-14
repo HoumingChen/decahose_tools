@@ -1,7 +1,7 @@
 # decahose_tools
 These are the codes I used on the cavium-thunderx to get, select, and preprocess data.
 
-# Getting started
+## Getting started
 1. Connect to the cavium-thunderx server, start a screen, clone the repo, and cd to the repo.
 ~~~
 screen
