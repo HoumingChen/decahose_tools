@@ -59,7 +59,7 @@ class Tools():
     def get_filter(self):
         '''Copying the 'self.all_tags' to 'tags' is necessary. Don't write in one line.'''
         tags = self.all_tags
-        return udf(lambda entities: any(element.text in tags for element in entities.hashtags), BooleanType())
+        return udf(lambda entities: any(element.text.lower() in tags for element in entities.hashtags), BooleanType())
 
 
     def missing(self):
