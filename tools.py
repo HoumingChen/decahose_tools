@@ -48,26 +48,12 @@ class Tools():
         return file_dirs, contained_dates
 
     def __load_predefined_tags(self):
-        f = open('pre_define_tag_topic.txt', 'r')
+        f = open('no_label_tag_topic.txt', 'r')
         input_file = f.readlines()
         tag_name = [input_file[i].strip() for i in range(2, len(input_file), 2)]
         tag_topic = [input_file[i].strip() for i in range(3, len(input_file), 2)]
         tag_topic_dict = {tag_name[i]: tag_topic[i] for i in range(len(tag_name))}
 
-        for i in tag_topic_dict.keys():
-            if tag_topic_dict[i] == 'NONE':
-                tag_topic_dict[i] = 'OTHER'
-            elif 'MUSIC' in tag_topic_dict[i]:
-                tag_topic_dict[i] = 'MUSIC'
-            elif 'MOVIES' in tag_topic_dict[i]:
-                tag_topic_dict[i] = 'MOVIES'
-            elif 'GAMES' in tag_topic_dict[i]:
-                tag_topic_dict[i] = 'GAMES'
-            elif 'TECHNOLOGY' in tag_topic_dict[i]:
-                tag_topic_dict[i] = 'TECHNOLOGY'
-
-        tag_topic_dict = {key: val for key, val in tag_topic_dict.items() if val != 'CELEBRITY'}
-        tag_topic_dict['Facebook'] = 'TECHNOLOGY'
         return tag_topic_dict
 
     def get_filter(self):
